@@ -1,0 +1,6 @@
+Flask
+redis
+python-dotenv
+requests  # Para integração com Keycloak
+cryptography # Para cifragem das mensagens
+Flask-Mail

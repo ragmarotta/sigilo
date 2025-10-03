@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Sua Mensagem Segura - SIGILO{% endblock %}
+
+{% block content %}
+<div class="card-panel">
+    <h5 class="card-title">Mensagem Segura</h5>
+    <p>A mensagem abaixo foi descriptografada e será destruída se o limite de acesso for atingido.</p>
+    <div class="card-panel grey lighten-3">
+        <pre style="white-space: pre-wrap; word-wrap: break-word;">{{ content }}</pre>
+    </div>
+</div>
+<a href="{{ url_for('main.index') }}" class="btn waves-effect waves-light">Voltar</a>
+{% endblock %}

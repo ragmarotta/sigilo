@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: seu-repositorio/sigilo
+  pullPolicy: IfNotPresent
+  # Overridden by the image tag in the CI/CD pipeline
+  tag: "latest"
+
+# Name of the Kubernetes secret that holds the environment variables
+existingSecret: sigilo-env
+
+service:
+  type: ClusterIP
+  port: 80

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Mock Login - SIGILO{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h1 class="title-page">Login (Mock)</h1>
+        <p>Selecione o tipo de usuário para simular o login.</p>
+        <div class="list-group">
+            <a href="{{ url_for('auth.mock_login_as', role='user') }}" class="list-group-item list-group-item-action">
+                Logar como <strong>Usuário Padrão</strong>
+            </a>
+            <a href="{{ url_for('auth.mock_login_as', role='admin') }}" class="list-group-item list-group-item-action">
+                Logar como <strong>Administrador</strong>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

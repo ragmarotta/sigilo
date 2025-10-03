@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Erro - SIGILO{% endblock %}
+
+{% block content %}
+<div class="card-panel red lighten-3">
+    <h5 class="red-text text-darken-4">Não foi possível acessar a mensagem</h5>
+    <p>{{ error }}</p>
+    <p>Por favor, verifique o link ou entre em contato com quem o enviou.</p>
+</div>
+<a href="{{ url_for('main.index') }}" class="btn waves-effect waves-light">Voltar para a Página Inicial</a>
+{% endblock %}

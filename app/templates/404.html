@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Página Não Encontrada - SIGILO{% endblock %}
+
+{% block content %}
+<div class="card-panel red lighten-3 center-align">
+    <h1 class="red-text text-darken-4" style="font-size: 6rem; margin: 0;">404</h1>
+    <h5>Página Não Encontrada</h5>
+    <p>O link que você tentou acessar não existe ou já expirou.</p>
+</div>
+<div class="center-align">
+    <a href="{{ url_for('main.index') }}" class="btn waves-effect waves-light">Voltar para a Página Inicial</a>
+</div>
+{% endblock %}
