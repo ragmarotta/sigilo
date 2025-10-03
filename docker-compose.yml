@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  app:
+  sigilo:
     build: .
     ports:
       - "5000:5000"
@@ -9,7 +9,7 @@ services:
       - .:/app
     environment:
       - FLASK_APP=run.py
-      - FLASK_ENV=development
+      - FLASK_DEBUG=1
       # Adicionar outras variáveis de ambiente necessárias
       - REDIS_URL=redis://redis:6379/0
     depends_on:

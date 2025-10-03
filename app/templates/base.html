@@ -6,57 +6,74 @@
     <title>{% block title %}SIGILO TJMG{% endblock %}</title>
     <!-- Materialize CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <!-- TJMG Custom CSS -->
-    <link rel="stylesheet" href="https://www.tjmg.jus.br/lumis-theme/br/jus/tjmg/portal/theme/portal/tjmg/portal/css/bundle.css">
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+
     <header>
-        <nav class="nav-extended">
-            <div class="nav-wrapper container">
-                <a href="{{ url_for('main.index') }}" class="brand-logo">SIGILO</a>
-                <ul id="nav-mobile" class="right hide-on-med-and-down">
-                    {% if session['user'] %}
-                        <li><span class="nav-link">Olá, {{ session['user']['name'] }}</span></li>
-                        {% if 'admin' in session['user']['roles'] %}
-                        <li><a href="{{ url_for('admin.index') }}">Admin</a></li>
-                        {% endif %}
-                        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-                    {% else %}
-                        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
-                    {% endif %}
-                </ul>
-            </div>
+        <!-- Top Nav -->
+        <div class="navbar-fixed">
+            <nav class="tjmg-red">
+                <div class="nav-wrapper">
+                    <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                    <a href="{{ url_for('main.index') }}" class="brand-logo" style="padding-left: 20px;">SIGILO</a>
+                </div>
+            </nav>
+        </div>
+
+        <!-- Sidenav -->
+        <ul id="slide-out" class="sidenav sidenav-fixed">
             {% if session['user'] %}
-            <div class="nav-content container">
-                <ul class="tabs tabs-transparent">
-                    <li class="tab"><a class="active" href="#message-panel">Mensagem Segura</a></li>
-                    <li class="tab"><a href="#link-panel">Encurtador de URL</a></li>
-                </ul>
-            </div>
+                <li>
+                    <div class="user-view">
+                        <div class="background tjmg-red">
+                        </div>
+                        <a><i class="material-icons white-text">account_circle</i></a>
+                        <a><span class="white-text name">{{ session['user']['name'] }}</span></a>
+                        <a><span class="white-text email">{{ session['user']['email'] }}</span></a>
+                    </div>
+                </li>
+                <li><a class="waves-effect" href="{{ url_for('main.index') }}"><i class="material-icons">home</i>Página Inicial</a></li>
+                {% if 'admin' in session['user']['roles'] %}
+                <li><a class="waves-effect" href="{{ url_for('admin.index') }}"><i class="material-icons">security</i>Painel de Admin</a></li>
+                {% endif %}
+                <li><div class="divider"></div></li>
+                <li><a class="waves-effect" href="{{ url_for('auth.logout') }}"><i class="material-icons">exit_to_app</i>Logout</a></li>
+            {% else %}
+                <li>
+                    <div class="user-view">
+                        <div class="background tjmg-red">
+                        </div>
+                        <a href="{{ url_for('auth.login') }}"><span class="white-text name">Bem-vindo</span></a>
+                        <a href="{{ url_for('auth.login') }}"><span class="white-text email">Faça login para continuar</span></a>
+                    </div>
+                </li>
+                <li><a class="waves-effect" href="{{ url_for('auth.login') }}"><i class="material-icons">login</i>Login</a></li>
             {% endif %}
-        </nav>
+        </ul>
     </header>
 
-    <main class="container" style="padding-top: 20px;">
-        {% with messages = get_flashed_messages(with_categories=True) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="card-panel {{ category }}">
-                        {{ message }}
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        {% block content %}{% endblock %}
+    <main>
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="card-panel {{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
     </main>
-
-    <footer class="page-footer">
-        <!-- Rodapé Padrão TJMG -->
-    </footer>
 
     <!-- Materialize JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
+

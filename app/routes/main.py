@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, url_for, flash, redirect, session, current_app
 from app.services.redis_service import RedisService
 from app.services.email_service import send_access_email
+from app.services.audit_service import log_event
 
 bp = Blueprint('main', __name__)
 
@@ -9,6 +10,12 @@ bp = Blueprint('main', __name__)
 def index():
     """Renderiza a página principal da aplicação."""
     return render_template('index.html')
+
+
+@bp.route('/favicon.ico')
+def favicon():
+    """Retorna uma resposta vazia para o favicon para evitar erros no log."""
+    return '', 204
 
 
 @bp.route('/create/message', methods=['POST'])
@@ -38,6 +45,7 @@ def create_message():
     if recipient_email:
         send_access_email(recipient_email, access_url)
 
+    log_event('message_created', details={'token': token, 'expires_in': expires_in, 'max_visits': max_visits})
     return render_template('message_created.html', access_url=access_url)
 
 
@@ -53,8 +61,10 @@ def view_message(token):
     content, error = redis_service.get_message(token)
     
     if error:
+        log_event('message_access_failed', details={'token': token, 'error': error})
         return render_template('message_error.html', error=error)
         
+    log_event('message_accessed', details={'token': token})
     return render_template('view_message.html', content=content)
 
 
@@ -79,6 +89,7 @@ def create_link():
     
     access_url = url_for('main.redirect_to_url', short_code=short_code, _external=True)
     
+    log_event('link_created', details={'short_code': short_code, 'long_url': long_url})
     return render_template('message_created.html', access_url=access_url)
 
 

@@ -1,5 +1,6 @@
 from flask import Blueprint, url_for, redirect, session, request, current_app, render_template
 from app.services.keycloak_service import KeycloakService
+from app.services.audit_service import log_event
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -36,9 +37,11 @@ def callback():
         session['access_token'] = tokens['access_token']
         session['refresh_token'] = tokens['refresh_token']
         
+        log_event('login_success', details={'username': user_info.get('preferred_username')})
         return redirect(url_for('main.index'))
     except Exception as e:
         current_app.logger.error(f"Authentication failed: {e}")
+        log_event('login_failure', details={'error': str(e)})
         return "Authentication failed.", 400
 
 
@@ -50,8 +53,10 @@ def logout():
     if refresh_token:
         try:
             keycloak.logout(refresh_token)
+            log_event('logout_success')
         except Exception as e:
             current_app.logger.error(f"Keycloak logout failed: {e}")
+            log_event('logout_failure', details={'error': str(e)})
     
     # Clear the local session regardless
     session.clear()
@@ -95,4 +100,3 @@ def mock_login_as(role):
     
     log_event('login_success', details={'username': user_info['username'], 'mock': True})
     return redirect(url_for('main.index'))
-

@@ -1,4 +1,80 @@
-/* Estilos personalizados podem ser adicionados aqui para complementar o CSS do TJMG */
+/*-------------------------------------
+   Esquema de Cores TJMG (Vermelho)
+-------------------------------------*/
+
+.tjmg-red {
+    background-color: #C62828 !important; /* Vermelho escuro e sóbrio */
+}
+
+.tabs .indicator {
+    background-color: #EF9A9A; /* Um tom de vermelho mais claro para o indicador da aba */
+}
+
+.btn, .btn-large, .btn-small {
+    background-color: #D32F2F;
+}
+
+.btn:hover, .btn-large:hover, .btn-small:hover {
+    background-color: #C62828;
+}
+
+/* Cor do foco dos inputs */
+input:not([type]):focus:not([readonly]),
+input[type=text]:not(.browser-default):focus:not([readonly]),
+input[type=password]:not(.browser-default):focus:not([readonly]),
+input[type=email]:not(.browser-default):focus:not([readonly]),
+input[type=url]:not(.browser-default):focus:not([readonly]),
+input[type=time]:not(.browser-default):focus:not([readonly]),
+input[type=date]:not(.browser-default):focus:not([readonly]),
+input[type=datetime]:not(.browser-default):focus:not([readonly]),
+input[type=datetime-local]:not(.browser-default):focus:not([readonly]),
+input[type=tel]:not(.browser-default):focus:not([readonly]),
+input[type=number]:not(.browser-default):focus:not([readonly]),
+input[type=search]:not(.browser-default):focus:not([readonly]),
+textarea.materialize-textarea:focus:not([readonly]) {
+  outline: none !important;
+  border-bottom: 1px solid #C62828 !important;
+  box-shadow: 0 1px 0 0 #C62828 !important;
+}
+
+label.active {
+    color: #C62828 !important;
+}
+
+/*-------------------------------------
+   Layout e Estilos Modernos
+-------------------------------------*/
+
 body {
-    padding-top: 20px;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+    padding-left: 300px; /* Espaço para o sidenav fixo */
+}
+
+header, main, footer {
+    padding-left: 300px;
+}
+
+.sidenav-fixed {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+}
+
+.sidenav .user-view {
+    padding: 32px 32px 16px;
+}
+
+.card-panel {
+    box-shadow: 0 2px 2px 0 rgba(0,0,0,0.14), 0 3px 1px -2px rgba(0,0,0,0.12), 0 1px 5px 0 rgba(0,0,0,0.2);
+}
+
+/* Para telas menores, o sidenav não é mais fixo */
+@media only screen and (max-width : 992px) {
+    header, main, footer {
+        padding-left: 0;
+    }
 }
