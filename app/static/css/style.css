@@ -78,3 +78,8 @@ header, main, footer {
         padding-left: 0;
     }
 }
+
+/* Reduz a altura do rodapé */
+.page-footer {
+    padding-top: 0;
+}
