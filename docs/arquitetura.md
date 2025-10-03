@@ -5,26 +5,26 @@ Este diagrama mostra os principais componentes da aplicação e como eles intera
 ```mermaid
 graph TD
     subgraph "Usuário"
-        Browser[<i class="material-icons">web</i> Navegador Web]
+        Browser[Navegador Web]
     end
 
     subgraph "Infraestrutura SIGILO (Kubernetes/Docker)"
         subgraph "Aplicação Flask SIGILO"
             direction LR
-            Routes[Routes<br>(Controllers)]
-            Services[Services<br>(Lógica de Negócio)]
-            Repositories[Repositories<br>(Acesso a Dados)]
+            Routes["Routes (Controllers)"]
+            Services["Services (Lógica de Negócio)"]
+            Repositories["Repositories (Acesso a Dados)"]
             
             Routes --> Services
             Services --> Repositories
         end
-        Redis[<i class="material-icons">storage</i> Redis]
+        Redis[Redis]
         Repositories -- Lê/Escreve --> Redis
     end
 
     subgraph "Serviços Externos"
-        Keycloak[<i class="material-icons">security</i> Keycloak]
-        SMTPServer[<i class="material-icons">email</i> Servidor SMTP]
+        Keycloak[Keycloak]
+        SMTPServer["Servidor SMTP"]
     end
 
     Browser -- HTTPS --> Routes
