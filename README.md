@@ -21,13 +21,27 @@ O sistema aborda a necessidade de uma ferramenta interna segura, evitando o uso 
 - **Autenticação:** Keycloak (OpenID Connect)
 - **Deploy:** Docker, Docker Compose, Helm, Kubernetes
 
-## Arquitetura
+## Arquitetura e Diagramas
 
-A aplicação é projetada para rodar em contêineres, desacoplando os serviços:
+A documentação detalhada sobre a arquitetura, classes e fluxos da aplicação foi separada em arquivos específicos para manter este README mais limpo. Para detalhes, consulte:
 
-- **Contêiner da Aplicação:** Executa a aplicação Flask em um servidor Gunicorn (em produção).
-- **Contêiner do Redis:** Atua como banco de dados para armazenamento rápido e volátil das mensagens e links.
-- **Keycloak:** Gerencia a identidade dos usuários. É um serviço externo que pode ou não rodar no mesmo cluster.
+- **[Diagrama de Arquitetura](./docs/arquitetura.md):** Visão geral dos componentes e suas interações.
+- **[Diagrama de Classes](./docs/classes.md):** Desenho simplificado das principais classes de serviço e rotas.
+- **[Diagrama de Fluxo](./docs/fluxo.md):** Diagrama de sequência para o caso de uso de criação e acesso de mensagens.
+
+## Funcionamento da Expiração
+
+A expiração de itens no SIGILO é gerenciada diretamente pelo Redis, garantindo alta performance e eficiência. Existem dois mecanismos principais:
+
+### 1. Expiração por Tempo (Para Mensagens e URLs)
+
+- **Como funciona:** Ao criar um item com um prazo de validade (ex: "1 Hora"), a aplicação utiliza o comando `EXPIRE` do Redis.
+- **Mecanismo:** Este comando funciona como um "timer" que instrui o Redis a **apagar automaticamente** o item após o tempo especificado. A aplicação não precisa verificar a data a cada acesso; se o item expirou, o Redis simplesmente informa que ele não existe mais.
+
+### 2. Expiração por Número de Acessos (Apenas para Mensagens)
+
+- **Como funciona:** Ao criar uma mensagem com um "Nº Máximo de Acessos", a aplicação armazena um contador.
+- **Mecanismo:** A cada acesso, o contador é incrementado de forma atômica (usando o comando `HINCRBY`). Quando o contador atinge o limite definido, a aplicação **deleta explicitamente** a mensagem, garantindo que ela seja lida apenas o número de vezes especificado.
 
 ## Executando Localmente (com Docker)
 
