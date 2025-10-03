@@ -19,6 +19,9 @@ class Config:
     # Mock Keycloak
     KEYCLOAK_ENABLED = os.environ.get('KEYCLOAK_ENABLED', 'True').lower() in ('true', '1', 't')
 
+    # App Version
+    APP_VERSION = "1.0.0-SNAPSHOT"
+
     # Email Config
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
     MAIL_PORT = int(os.environ.get('MAIL_PORT') or 25)

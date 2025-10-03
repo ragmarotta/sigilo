@@ -29,4 +29,9 @@ def create_app(config_class=Config):
     from app.routes.admin import bp as admin_bp
     app.register_blueprint(admin_bp)
 
+    # Injeta variáveis nos templates
+    @app.context_processor
+    def inject_version():
+        return dict(app_version=app.config['APP_VERSION'])
+
     return app
