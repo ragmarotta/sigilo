@@ -1,9 +1,23 @@
 import logging
 import json
+import datetime
+from zoneinfo import ZoneInfo
 from flask import request, session
+
+# Define o fuso horário alvo
+TARGET_TZ = ZoneInfo("America/Sao_Paulo")
 
 class JSONFormatter(logging.Formatter):
     """Formata registros de log como uma string JSON."""
+
+    def formatTime(self, record, datefmt=None):
+        """ Converte o timestamp do log para o fuso horário local. """
+        dt_utc = datetime.datetime.fromtimestamp(record.created, tz=datetime.timezone.utc)
+        dt_local = dt_utc.astimezone(TARGET_TZ)
+        if datefmt:
+            return dt_local.strftime(datefmt)
+        return dt_local.isoformat()
+
     def format(self, record):
         log_object = {
             'timestamp': self.formatTime(record, self.datefmt),

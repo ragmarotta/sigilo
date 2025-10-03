@@ -3,71 +3,97 @@
 {% block title %}Painel de Administração - SIGILO{% endblock %}
 
 {% block content %}
-<h4 class="title-page">Painel de Administração</h4>
-<p class="lead">Bem-vindo à área de administração do SIGILO.</p>
-
-<div class="card-panel">
-    <h5>Mensagens Ativas</h5>
-    <table class="striped highlight responsive-table">
-        <thead>
-            <tr>
-                <th>Token</th>
-                <th>Proprietário</th>
-                <th>Criado em</th>
-                <th>Visitas</th>
-                <th>Expira em (TTL)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for msg in messages %}
-            <tr>
-                <td>{{ msg.token[:12] }}...</td>
-                <td>{{ msg.owner }}</td>
-                <td>{{ msg.created_at }}</td>
-                <td>{{ msg.visits }} / {{ msg.max_visits if msg.max_visits != '0' else '∞' }}</td>
-                <td>{{ msg.ttl }}</td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" class="center-align">Nenhuma mensagem ativa no momento.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="row">
+    <div class="col s12">
+        <h4 class="header">Painel de Administração</h4>
+        <p>Gerencie as mensagens e links ativos no sistema.</p>
+    </div>
 </div>
 
-<div class="card-panel">
-    <h5>Links Ativos</h5>
-    <table class="striped highlight responsive-table">
-        <thead>
-            <tr>
-                <th>Código Curto</th>
-                <th>URL Original</th>
-                <th>Proprietário</th>
-                <th>Expira em (TTL)</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for link in links %}
-            <tr>
-                <td><a href="{{ url_for('main.redirect_to_url', short_code=link.short_code, _external=True) }}" target="_blank">{{ link.short_code }}</a></td>
-                <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ link.long_url }}</td>
-                <td>{{ link.owner }}</td>
-                <td>{{ link.ttl }}</td>
-                <td>
-                    <form action="{{ url_for('admin.revoke', item_type='link', item_id=link.short_code) }}" method="post" style="display:inline;">
-                        <button type="submit" class="btn-small waves-effect waves-light red" onclick="return confirm('Tem certeza que deseja revogar este link?');">Revogar</button>
-                    </form>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="5" class="center-align">Nenhum link ativo no momento.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<div class="row">
+    <div class="col s12">
+        <ul class="tabs">
+            <li class="tab col s6"><a class="active" href="#messages-panel">Mensagens Ativas</a></li>
+            <li class="tab col s6"><a href="#links-panel">Links Ativos</a></li>
+        </ul>
+    </div>
 
+    <!-- Painel de Mensagens -->
+    <div id="messages-panel" class="col s12">
+        <div class="card-panel">
+            <table class="striped highlight responsive-table">
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Proprietário</th>
+                        <th>Criado em</th>
+                        <th>Visitas</th>
+                        <th>Expira em (TTL)</th>
+                        <th>Data de Expiração</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for msg in messages %}
+                    <tr>
+                        <td>{{ msg.token[:12] }}...</td>
+                        <td>{{ msg.owner }}</td>
+                        <td>{{ msg.created_at }}</td>
+                        <td>{{ msg.visits }} / {{ msg.max_visits if msg.max_visits != '0' else '∞' }}</td>
+                        <td>{{ msg.ttl }}</td>
+                        <td>{{ msg.expiration_date }}</td>
+                        <td>
+                            <form action="{{ url_for('admin.revoke', item_type='message', item_id=msg.token) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn-small waves-effect waves-light red" onclick="return confirm('Tem certeza que deseja revogar esta mensagem?');">Revogar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="center-align">Nenhuma mensagem ativa no momento.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Painel de Links -->
+    <div id="links-panel" class="col s12">
+        <div class="card-panel">
+            <table class="striped highlight responsive-table">
+                <thead>
+                    <tr>
+                        <th>Código Curto</th>
+                        <th>URL Original</th>
+                        <th>Proprietário</th>
+                        <th>Expira em (TTL)</th>
+                        <th>Data de Expiração</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for link in links %}
+                    <tr>
+                        <td><a href="{{ url_for('main.redirect_to_url', short_code=link.short_code, _external=True) }}" target="_blank">{{ link.short_code }}</a></td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ link.long_url }}</td>
+                        <td>{{ link.owner }}</td>
+                        <td>{{ link.ttl }}</td>
+                        <td>{{ link.expiration_date }}</td>
+                        <td>
+                            <form action="{{ url_for('admin.revoke', item_type='link', item_id=link.short_code) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn-small waves-effect waves-light red" onclick="return confirm('Tem certeza que deseja revogar este link?');">Revogar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="center-align">Nenhum link ativo no momento.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 {% endblock %}
