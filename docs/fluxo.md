@@ -1,45 +1,52 @@
 # Diagrama de Fluxo (Criação e Acesso de Mensagem)
 
-Este diagrama de sequência descreve o fluxo de interações para o caso de uso principal: um usuário criando e outro acessando uma mensagem segura.
+Este diagrama de sequência foi atualizado para mostrar a interação entre as novas camadas da arquitetura (Serviço e Repositório).
 
 ### Criação da Mensagem
 
 ```mermaid
 sequenceDiagram
-    participant UserA as Usuário A
-    participant Browser as Navegador
-    participant SIGILO as App SIGILO
+    participant User as Usuário
+    participant Route as Rota
+    participant Service as Serviço
+    participant Repository as Repositório
     participant Redis
 
-    UserA->>Browser: Preenche formulário da mensagem
-    Browser->>SIGILO: POST /create/message
-    SIGILO->>Redis: Gera token, criptografa e salva mensagem (HSET)
-    SIGILO->>Redis: Define tempo de expiração (EXPIRE)
-    Redis-->>SIGILO: Confirmação
-    SIGILO-->>Browser: Retorna página com link de acesso
-    Browser-->>UserA: Exibe link seguro
+    User->>Route: POST /create/message
+    Route->>Service: create_message(dados)
+    Service->>Repository: save(dados_criptografados)
+    Repository->>Redis: HSET, EXPIRE
+    Redis-->>Repository: OK
+    Repository-->>Service: OK
+    Service-->>Route: token
+    Route-->>User: Exibe página com link
 ```
 
 ### Acesso à Mensagem
 
 ```mermaid
 sequenceDiagram
-    participant UserB as Usuário B
-    participant Browser as Navegador
-    participant SIGILO as App SIGILO
+    participant User as Usuário
+    participant Route as Rota
+    participant Service as Serviço
+    participant Repository as Repositório
     participant Redis
 
-    UserB->>Browser: Acessa URL com token
-    Browser->>SIGILO: GET /message/&lt;token&gt;
-    SIGILO->>Redis: Incrementa visitas (HINCRBY) e busca dados
-    Redis-->>SIGILO: Retorna dados da mensagem
+    User->>Route: GET /message/<token>
+    Route->>Service: find_and_process_message(token)
+    Service->>Repository: find_by_id(token)
+    Repository->>Redis: HGETALL
+    Redis-->>Repository: dados_da_mensagem
+    Repository-->>Service: dados_da_mensagem
+    Service->>Repository: increment_visits(token)
+    Repository->>Redis: HINCRBY
     alt Mensagem válida
-        SIGILO->>SIGILO: Descriptografa conteúdo
-        SIGILO-->>Browser: Renderiza página com a mensagem
-        Browser-->>UserB: Exibe mensagem
-        SIGILO->>Redis: Se limite de visitas foi atingido, apaga a chave (DEL)
-    else Mensagem inválida ou expirada
-        SIGILO-->>Browser: Renderiza página de erro
-        Browser-->>UserB: Exibe erro
+        Service-->>Route: conteúdo_descriptografado
+        Route-->>User: Exibe página com mensagem
+    else Mensagem expirada
+        Service->>Repository: delete(token)
+        Repository->>Redis: DEL
+        Service-->>Route: erro
+        Route-->>User: Exibe página de erro
     end
 ```

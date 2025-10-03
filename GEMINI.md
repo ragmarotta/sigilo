@@ -11,11 +11,14 @@ SIGILO (SIstema de Gestão de Informações e Links Operacionais) is a secure in
 - **Authentication:** Keycloak (OAuth2)
 - **Deployment:** Docker, Docker Compose, Helm for Kubernetes.
 
-## 3. Core Features
+## 3. Project Structure
 
-- **Secure Messaging:** Create encrypted messages with configurable expiration (time and access count).
-- **URL Shortener:** Create short URLs with optional expiration.
-- **Secure Access:** Messages are accessed via a unique URL and token.
-- **Email Notifications:** Send access details via a configurable email service.
-- **Role-Based Access:** Differentiated permissions for administrators and users.
-- **Audit Logging:** Configurable logging for all critical operations.
+The project follows a layered architecture pattern (Controllers, Services, Repositories) to ensure separation of concerns.
+
+-   `app/routes/`: Controller layer. Handles HTTP requests and calls the appropriate services.
+-   `app/services/`: Service layer. Contains the core business logic (e.g., expiration rules, cryptography orchestration). It depends on repository interfaces, not concrete implementations.
+-   `app/repositories/`: Repository layer. Abstracted data access layer. This is the only part of the app that knows how data is stored (currently Redis).
+    -   `app/repositories/interfaces/`: Defines the contracts (Abstract Base Classes) for the repositories.
+-   `app/dependencies.py`: A factory module responsible for dependency injection, deciding which concrete repository to use and injecting it into the services.
+-   `app/templates/`: View layer, containing Jinja2 templates.
+-   `Dockerfile`, `docker-compose.yml`, `helm/`: Files for containerization and deployment.

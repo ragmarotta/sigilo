@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, url_for, flash, redirect, session, current_app
-from app.services.redis_service import RedisService
 from app.services.email_service import send_access_email
 from app.services.audit_service import log_event
+from app.dependencies import get_message_service, get_link_service
 
 bp = Blueprint('main', __name__)
 
@@ -29,11 +29,18 @@ def create_message():
 
     content = request.form.get('content')
     expires_in = request.form.get('expires_in')
-    max_visits = request.form.get('max_visits')
+    max_visits_str = request.form.get('max_visits')
+
+    # Validação do backend
+    if not max_visits_str or not max_visits_str.isdigit() or int(max_visits_str) < 1:
+        flash("O número máximo de acessos deve ser um número maior ou igual a 1.", "red lighten-2")
+        return redirect(url_for('main.index'))
+
+    max_visits = int(max_visits_str)
     recipient_email = request.form.get('recipient_email')
     
-    redis_service = RedisService()
-    token = redis_service.create_message(
+    message_service = get_message_service()
+    token = message_service.create_message(
         content=content,
         expires_in=expires_in,
         max_visits=max_visits,
@@ -57,8 +64,8 @@ def view_message(token):
     Args:
         token (str): O token único para acessar a mensagem.
     """
-    redis_service = RedisService()
-    content, error = redis_service.get_message(token)
+    message_service = get_message_service()
+    content, error = message_service.find_and_process_message(token)
     
     if error:
         log_event('message_access_failed', details={'token': token, 'error': error})
@@ -80,8 +87,8 @@ def create_link():
     long_url = request.form.get('long_url')
     expires_in = request.form.get('expires_in_link')
 
-    redis_service = RedisService()
-    short_code = redis_service.create_short_link(
+    link_service = get_link_service()
+    short_code = link_service.create_short_link(
         long_url=long_url,
         expires_in=expires_in,
         owner=session['user']['username']
@@ -101,8 +108,8 @@ def redirect_to_url(short_code):
     Args:
         short_code (str): O código curto a ser resolvido.
     """
-    redis_service = RedisService()
-    long_url = redis_service.get_long_url(short_code)
+    link_service = get_link_service()
+    long_url = link_service.find_long_url(short_code)
     
     if long_url:
         log_event('link_redirected', details={'short_code': short_code, 'long_url': long_url.decode('utf-8')})

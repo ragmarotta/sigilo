@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, flash
 from app.decorators import admin_required
-from app.services.redis_service import RedisService
+from app.dependencies import get_message_service, get_link_service
 from app.services.audit_service import log_event
 
 bp = Blueprint('admin', __name__, url_prefix='/admin')
@@ -10,9 +10,10 @@ bp = Blueprint('admin', __name__, url_prefix='/admin')
 @admin_required
 def index():
     """Renderiza o painel de administração com a lista de mensagens e links ativos."""
-    redis_service = RedisService()
-    all_messages = redis_service.get_all_messages()
-    all_links = redis_service.get_all_links()
+    message_service = get_message_service()
+    link_service = get_link_service()
+    all_messages = message_service.get_all_formatted_messages()
+    all_links = link_service.get_all_formatted_links()
     return render_template('admin/index.html', messages=all_messages, links=all_links)
 
 
@@ -26,9 +27,16 @@ def revoke(item_type, item_id):
         item_type (str): O tipo de item a ser revogado ('message' ou 'link').
         item_id (str): O ID (token ou short_code) do item.
     """
-    redis_service = RedisService()
     try:
-        redis_service.revoke_item(item_type, item_id)
+        if item_type == 'message':
+            service = get_message_service()
+            service.revoke_message(item_id)
+        elif item_type == 'link':
+            service = get_link_service()
+            service.revoke_link(item_id)
+        else:
+            raise ValueError("Tipo de item inválido")
+
         log_event('item_revoked', details={'item_type': item_type, 'item_id': item_id})
         flash(f'{item_type.capitalize()} revogado com sucesso!', 'green lighten-2')
     except ValueError as e:

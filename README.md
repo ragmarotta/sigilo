@@ -23,10 +23,18 @@ O sistema aborda a necessidade de uma ferramenta interna segura, evitando o uso 
 
 ## Arquitetura e Diagramas
 
-A documentação detalhada sobre a arquitetura, classes e fluxos da aplicação foi separada em arquivos específicos para manter este README mais limpo. Para detalhes, consulte:
+A aplicação segue um padrão de arquitetura em camadas (Controllers, Services, Repositories) para garantir a separação de responsabilidades, alta coesão e baixo acoplamento entre os componentes.
+
+- **Controllers (Rotas):** Responsáveis por receber as requisições HTTP e orquestrar as ações.
+- **Services (Serviços):** Contêm a lógica de negócio da aplicação (ex: regras de expiração, criptografia).
+- **Repositories (Repositórios):** Camada de abstração de dados. É a única parte do sistema que sabe como e onde os dados são persistidos (atualmente, no Redis).
+
+Este design, que utiliza **Injeção de Dependência** e **Interfaces**, torna a aplicação extremamente flexível. Para trocar o Redis por outro banco de dados no futuro, basta criar uma nova implementação do repositório e atualizar a fábrica de dependências, sem a necessidade de alterar os serviços ou as rotas.
+
+Para detalhes visuais, consulte os diagramas na pasta `docs`:
 
 - **[Diagrama de Arquitetura](./docs/arquitetura.md):** Visão geral dos componentes e suas interações.
-- **[Diagrama de Classes](./docs/classes.md):** Desenho simplificado das principais classes de serviço e rotas.
+- **[Diagrama de Classes](./docs/classes.md):** Desenho simplificado ilustrando o padrão de Inversão de Dependência.
 - **[Diagrama de Fluxo](./docs/fluxo.md):** Diagrama de sequência para o caso de uso de criação e acesso de mensagens.
 
 ## Funcionamento da Expiração

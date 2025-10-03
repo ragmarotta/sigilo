@@ -1,6 +1,6 @@
 # Diagrama de Arquitetura (Componentes)
 
-Este diagrama mostra os principais componentes da aplicação e como eles interagem entre si.
+Este diagrama mostra os principais componentes da aplicação e como eles interagem entre si, destacando a nova arquitetura em camadas.
 
 ```mermaid
 graph TD
@@ -9,8 +9,17 @@ graph TD
     end
 
     subgraph "Infraestrutura SIGILO (Kubernetes/Docker)"
-        App[<i class="material-icons">layers</i> Aplicação Flask SIGILO]
+        subgraph "Aplicação Flask SIGILO"
+            direction LR
+            Routes[Routes<br>(Controllers)]
+            Services[Services<br>(Lógica de Negócio)]
+            Repositories[Repositories<br>(Acesso a Dados)]
+            
+            Routes --> Services
+            Services --> Repositories
+        end
         Redis[<i class="material-icons">storage</i> Redis]
+        Repositories -- Lê/Escreve --> Redis
     end
 
     subgraph "Serviços Externos"
@@ -18,8 +27,7 @@ graph TD
         SMTPServer[<i class="material-icons">email</i> Servidor SMTP]
     end
 
-    Browser -- HTTPS --> App
-    App -- OIDC --> Keycloak
-    App -- Lê/Escreve --> Redis
-    App -- Envia E-mail --> SMTPServer
+    Browser -- HTTPS --> Routes
+    Services -- OIDC --> Keycloak
+    Services -- Envia E-mail --> SMTPServer
 ```

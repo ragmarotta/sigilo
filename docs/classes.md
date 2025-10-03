@@ -1,66 +1,45 @@
 # Diagrama de Classes (Simplificado)
 
-Este diagrama mostra as principais classes de serviço e rotas da aplicação, destacando suas responsabilidades.
+Este diagrama mostra a relação entre as Interfaces, Repositórios e Serviços, ilustrando o padrão de Inversão de Dependência.
 
 ```mermaid
 classDiagram
-    class FlaskApp {
-        +create_app()
-        +register_blueprint()
+    direction LR
+
+    class MessageRepositoryInterface {
+        <<Interface>>
+        +save()
+        +find_by_id()
+        +delete()
     }
 
-    class RedisService {
+    class RedisMessageRepository {
         -redis: RedisClient
-        -fernet: Fernet
+        +save()
+        +find_by_id()
+        +delete()
+    }
+
+    class MessageService {
+        -message_repo: MessageRepositoryInterface
+        -crypto_service: CryptoService
         +create_message()
-        +get_message()
-        +create_short_link()
-        +get_long_url()
-        +revoke_item()
-    }
-
-    class KeycloakService {
-        -server_url
-        -realm
-        +get_auth_url()
-        +get_token()
-        +get_user_info()
-    }
-
-    class AuditService {
-        +log_event(event_type, details)
-    }
-
-    class MainRoutes {
-        <<Blueprint>>
-        / : index()
-        /create/message : create_message()
-        /message/&lt;token&gt; : view_message()
-        /&lt;short_code&gt; : redirect_to_url()
-    }
-
-    class AuthRoutes {
-        <<Blueprint>>
-        /login : login()
-        /logout : logout()
-        /callback : callback()
+        +find_and_process_message()
     }
     
-    class AdminRoutes {
-        <<Blueprint>>
-        / : index()
-        /revoke/... : revoke()
+    class DependenciesFactory {
+        <<Factory>>
+        +get_message_service()
     }
 
-    FlaskApp --> MainRoutes
-    FlaskApp --> AuthRoutes
-    FlaskApp --> AdminRoutes
-    
-    MainRoutes ..> RedisService
-    AuthRoutes ..> KeycloakService
-    AdminRoutes ..> RedisService
+    class Routes {
+        <<Controller>>
+    }
 
-    AuthRoutes ..> AuditService
-    MainRoutes ..> AuditService
-    AdminRoutes ..> AuditService
+    RedisMessageRepository --|> MessageRepositoryInterface : implementa
+    MessageService o-- MessageRepositoryInterface : usa
+    DependenciesFactory ..> MessageService : cria
+    DependenciesFactory ..> RedisMessageRepository : cria
+    Routes ..> DependenciesFactory : usa
+
 ```
