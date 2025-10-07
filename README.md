@@ -76,20 +76,30 @@ O sistema é configurado via variáveis de ambiente. Para desenvolvimento, você
     cp .env.example .env
     ```
 
-2.  Edite o arquivo `.env` e configure as variáveis. Para um teste rápido e local, as seguintes configurações são suficientes:
+2.  Edite o arquivo `.env` e configure as variáveis. Para um teste rápido e local, as seguintes configurações são essenciais:
 
-    - **Desativar Keycloak (Recomendado para teste local):**
+    - **Definir o Ambiente:**
+      Para desenvolvimento local, defina o ambiente como `development`. Isso permitirá que o modo "mock" do Keycloak seja ativado se `KEYCLOAK_ENABLED` for `False`.
       ```
-      KEYCLOAK_ENABLED=False
+      ENVIRONMENT=development
       ```
-      Isso ativará a tela de login falso, permitindo que você teste a aplicação sem precisar de uma instância do Keycloak.
 
-    - **Gerar uma Chave de Criptografia:**
-      A `FERNET_KEY` é usada para criptografar as mensagens. Gere uma nova chave e cole no arquivo `.env`.
+    - **Gerar Chaves de Segurança (Obrigatório):**
+      As chaves `SECRET_KEY` (para assinar sessões) e `FERNET_KEY` (para criptografar dados) são **obrigatórias** para a aplicação iniciar. Gere chaves fortes e únicas para elas.
+
+      Para `SECRET_KEY` (use o terminal):
+      ```bash
+      python -c 'import secrets; print(secrets.token_hex(32))'
+      ```
+
+      Para `FERNET_KEY` (use o terminal):
       ```bash
       python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
       ```
-      Substitua o valor de `FERNET_KEY` pela chave gerada.
+      Copie as chaves geradas para o seu arquivo `.env`.
+
+    - **Desativar Keycloak (Opcional, para teste local):**
+      Para usar a tela de login falso, defina `KEYCLOAK_ENABLED=False`.
 
 ### 3. Suba os Contêineres
 
@@ -121,7 +131,8 @@ O projeto inclui um Helm chart para facilitar a implantação em um ambiente Kub
 
 Crie um arquivo `.env` com as configurações de **produção**. As variáveis mais importantes são:
 
-- `KEYCLOAK_ENABLED=True`
+- `ENVIRONMENT=production` (Isso desativa a possibilidade de mockar o Keycloak).
+- `SECRET_KEY` com uma chave estática, longa e segura.
 - `KEYCLOAK_SERVER_URL`, `KEYCLOAK_REALM_NAME`, `KEYCLOAK_CLIENT_ID`, `KEYCLOAK_CLIENT_SECRET_KEY` com os valores reais do seu Keycloak.
 - `FERNET_KEY` com uma chave estática e segura.
 - `MAIL_SERVER`, `MAIL_PORT`, etc., com os dados do seu servidor de e-mail.
